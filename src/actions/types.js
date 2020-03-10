@@ -1,0 +1,3 @@
+export const APPEND_IMAGES = 'APPEND_IMAGES'
+export const CLEAR_IMAGES = 'CLEAR_IMAGES'
+export const SELECT_BREED = 'SELECT_BREED'
