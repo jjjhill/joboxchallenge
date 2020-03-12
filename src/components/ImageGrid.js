@@ -30,7 +30,7 @@ function Column(props) {
       if (entries.some(entry => entry.isIntersecting)) {
         props.onIntersectionObserved()
       }
-    }, { threshold: 1, rootMargin: "0px" });
+    }, { threshold: 0, rootMargin: "0px" });
     bottomObserver.current = observer;
   }, []);
 
@@ -47,10 +47,10 @@ function Column(props) {
   return (
     <div className="ImageColumn">
       {images.map((imgSrc, i) => {
-        if (i === images.length - 1) {
-          return <img key={i} src={imgSrc} ref={setBottom}/>
+        if (i < images.length - 1) {
+          return <img key={i} src={imgSrc} />
         }
-        return <img key={i} src={imgSrc} />
+        return <img key={i} src={imgSrc} ref={setBottom} />
       })}
     </div>
   );

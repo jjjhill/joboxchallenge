@@ -1,11 +1,11 @@
 import * as types from "../actions/types"
 
-const imagesReducer = (state = {images: [], columns: []}, action) => {
+const imagesReducer = (state = [], action) => {
   switch (action.type) {
     case types.APPEND_IMAGES:
-      return {...state, images: [...new Set([...state.images, ...action.images])]} // Set to ensure no duplicates
+      return [...new Set([...state, ...action.images])] // Set to ensure no duplicates
     case types.CLEAR_IMAGES:
-      return {columns: [], images: []}
+      return []
     default:
       return state
   }

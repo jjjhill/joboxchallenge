@@ -1,23 +1,9 @@
 .App {
   display: flex;
   flex-direction: column;
-  padding: 50px;
-}
-
-@media (max-width: 1000px) {
-  .images {
-    column-count: 3;
-  }
-}
-@media (max-width: 800px) {
-  .images {
-    column-count: 2;
-  }
-}
-@media (max-width: 500px) {
-  .images {
-    column-count: 1;
-  }
+  background-color: #121212;
+  width:100vw;
+  height:100vh;
 }
 
 img {

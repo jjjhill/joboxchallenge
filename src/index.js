@@ -6,9 +6,10 @@ import './index.css'
 import App from './App'
 import * as serviceWorker from './serviceWorker'
 import imagesReducer from './reducers/images'
+import breedReducer from './reducers/breed'
 
 const store = createStore(
-  imagesReducer,
+  combineReducers({ images: imagesReducer, selectedBreed: breedReducer }),
   window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
 )
 

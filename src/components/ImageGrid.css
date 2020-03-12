@@ -1,6 +1,10 @@
 .ImageGrid {
   display: flex;
   flex-direction: row;
+  flex: 1;
+  margin-left: 75px;
+  margin-right: 75px;
+  margin-top: 100px;
 }
 
 .ImageColumn {

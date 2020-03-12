@@ -1,0 +1,71 @@
+.sidebar {
+  width: 500px;
+  margin-top: 75px;
+  height: 100%;
+  border: 2px solid black;
+  background-color: #121212;
+  position: fixed;
+  left: 0px;
+  z-index: 1;
+  overflow: auto;
+}
+
+.sub-sidebar {
+  width: 500px;
+  margin-top: 75px;
+  height: 100%;
+  border: 2px solid black;
+  background-color: #121212;
+  position: fixed;
+  left: 502px;
+  z-index: 1;
+  overflow: auto;
+}
+
+.sidebar-item {
+  font-size: 25px;
+  color: white;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.breed-info {
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+}
+
+.thumbnail-img {
+  object-fit: cover;
+  height: 85px;
+  width: 85px;
+  border-radius: 50%;
+  margin-left: 10px;
+  margin-right: 20px;
+  margin-top: 5px;
+}
+
+.sub-breed-btn {
+  height: 50px;
+  width: 50px;
+  cursor: pointer;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: black;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888; 
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
