@@ -7,9 +7,14 @@ import App from './App'
 import * as serviceWorker from './serviceWorker'
 import imagesReducer from './reducers/images'
 import breedReducer from './reducers/breed'
+import sidebarReducer from './reducers/sidebar'
 
 const store = createStore(
-  combineReducers({ images: imagesReducer, selectedBreed: breedReducer }),
+  combineReducers({
+  	images: imagesReducer,
+  	selectedBreed: breedReducer,
+  	sidebarState: sidebarReducer
+  }),
   window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
 )
 

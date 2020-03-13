@@ -1,99 +1,105 @@
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import './BreedSelector.css'
 import axios from 'axios'
+import SideBarItem from './SideBarItem'
+import './BreedSelector.css'
 import { selectBreed } from "../actions/breed"
+import { expandSidebar, collapseSidebar, collapseFullSidebar } from "../actions/sidebar"
 
 function BreedSelector(props) {
   let [breedsList, setBreedsList] = useState({})
   let [breedExpanded, setBreedExpanded] = useState('')
-  let [subSelectorOpen, setSubSelectorOpen] = useState(false)
-  let [highlightedBreed, setHighlightedBreed] = useState('')
 
+  // Loop through each breed and sub-breed and attach the image sources to them.
+  // This increases performance by ensuring we don't need to fetch images for thumbnails
+  // every time a user hovers over a breed
   useEffect(() => {
     axios({
       method: 'get',
       url: 'https://dog.ceo/api/breeds/list/all'
     })
-    .then(res => setBreedsList(res.data.message))
+    .then(res => {
+      let breedsObj = res.data.message
+
+      Object.keys(breedsObj).forEach(breed => {
+        axios.get(`https://dog.ceo/api/breed/${breed}/images/random`)
+        .then(res => {
+          breedsObj[breed] = {
+            src: res.data.message,
+            subBreeds: breedsObj[breed].map((subBreed) => ({
+              name: subBreed,
+              src: ''
+            }))
+          }
+          Promise.all(breedsObj[breed].subBreeds.map(subBreed =>
+            axios.get(`https://dog.ceo/api/breed/${breed}/${subBreed.name}/images/random`)
+          ))
+          .then((responses) => {
+            responses.forEach((res, i) => {
+              let src = res.data.message
+              breedsObj[breed].subBreeds[i].src = src
+            })
+          })
+        })
+      })
+      setBreedsList(breedsObj)
+    })
   }, []);
 
   const onSelectBreed = (breed, subBreed) => {
-    props.onSelectorToggle()
     props.selectBreed(breed, subBreed)
-    setHighlightedBreed(breed)
+    props.collapseFullSidebar()
     if (!subBreed) setBreedExpanded('');
   }
-
   const onExpandSubBreeds = (breed) => {
+    props.expandSidebar()
     setBreedExpanded(breed)
-    setHighlightedBreed(breed)
+  }
+
+  const handleHover = (breed) => {
+    if (props.isSmallScreen) return
+    if (breedsList[breed].subBreeds.length) onExpandSubBreeds(breed)
+    else {
+      if (props.sidebarState.subSidebarOpen) props.collapseSidebar()
+    }
   }
 
   return (
-    <div hidden={!props.selectorOpen}>
-      <div className="sidebar">
-        {Object.keys(breedsList).map(breed => 
+    <div>
+      <div hidden={!props.sidebarState.sidebarOpen} className="sidebar">
+        {Object.keys(breedsList).map(breed =>
           <SideBarItem
-            breed={breed}
-            subBreed={''}
-            sideBarIndex={0}
-            children={breedsList[breed]}
+            label={breed}
+            children={breedsList[breed].subBreeds || []}
+            imgSrc={breedsList[breed].src}
             key={breed}
-            highlighted={highlightedBreed === breed}
-            onSelectBreed={onSelectBreed}
-            onExpandSubBreeds={onExpandSubBreeds}/>
+            selected={props.selectedBreed.breed === breed}
+            onSelectBreed={() => onSelectBreed(breed, '')}
+            onExpandSubBreeds={onExpandSubBreeds}
+            handleHover={() => handleHover(breed)} />
         )}
       </div>
-      <div hidden={!breedExpanded} className={"sub-sidebar"}>
-        {breedExpanded && breedsList[breedExpanded].map(subBreed => 
+      <div hidden={!props.sidebarState.subSidebarOpen} className="sidebar sub-sidebar">
+        {breedExpanded && breedsList[breedExpanded].subBreeds.map(subBreed => 
           <SideBarItem
-            breed={breedExpanded}
-            subBreed={subBreed}
+            label={subBreed.name}
             children={[]}
-            key={subBreed}
-            highlighted={props.selectedBreed.subBreed === subBreed}
-            onSelectBreed={() => onSelectBreed(breedExpanded, subBreed)}
-            onExpandSubBreeds={() => {}}/>
+            imgSrc={subBreed.src}
+            key={subBreed.src}
+            selected={props.selectedBreed.breed === breedExpanded && props.selectedBreed.subBreed === subBreed.name}
+            onSelectBreed={() => onSelectBreed(breedExpanded, subBreed.name)}
+            onExpandSubBreeds={() => {}}
+            handleHover={() => {}} />
         )}
       </div>
-    </div>
-  )
-}
-
-function SideBarItem(props) {
-  let [imgSrc, setImgSrc] = useState('')
-  let subBreedStr = props.subBreed && `/${props.subBreed}`
-  useEffect(() => {
-    axios({
-      method: 'get',
-      url: `https://dog.ceo/api/breed/${props.breed}${subBreedStr}/images/random`
-    })
-    .then(res => setImgSrc(res.data.message))
-  }, [props.breed])
-
-  const name = props.subBreed || props.breed
-  const children = props.children
-
-  return (
-    <div className="sidebar-item" style={{ backgroundColor: props.highlighted ? '#777777' : "#121212"}}>
-      <div className="breed-info" onClick={() => props.onSelectBreed(name, '')}>
-        <img src={imgSrc} className="thumbnail-img"/>
-        <p>{name}</p>
-      </div>
-      {children.length > 0 &&
-        <img
-          src={'/right_arrow.png'}
-          className="sub-breed-btn"
-          onClick={() => props.onExpandSubBreeds(name)} />
-      }
     </div>
   )
 }
 
 const mapStateToProps = state => {
   return {
-    selectedBreed: state.selectedBreed
+    selectedBreed: state.selectedBreed,
+    sidebarState: state.sidebarState,
   }
 }
 
@@ -101,6 +107,15 @@ const mapDispatchToProps = dispatch => {
   return {
     selectBreed: (breed, subBreed) => {
       dispatch(selectBreed(breed, subBreed))
+    },
+    expandSidebar: () => {
+      dispatch(expandSidebar())
+    },
+    collapseSidebar: () => {
+      dispatch(collapseSidebar())
+    },
+    collapseFullSidebar: () => {
+      dispatch(collapseFullSidebar())
     }
   }
 }
